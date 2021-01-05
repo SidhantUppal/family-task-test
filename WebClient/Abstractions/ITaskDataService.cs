@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using WebClient.Shared.Models;
+using Domain.ViewModel;
 
 namespace WebClient.Abstractions
 {
@@ -13,14 +12,17 @@ namespace WebClient.Abstractions
     /// </summary>
     public interface ITaskDataService
     {
-        List<TaskModel> Tasks { get; }
-        TaskModel SelectedTask { get; }
+        IEnumerable<TaskVm> Tasks { get; }
+        TaskVm SelectedTask { get; set; }
 
-        event EventHandler TasksUpdated;
-        event EventHandler TaskSelected;
+        public event EventHandler TasksChanged;
+        public event EventHandler<string> UpdateTaskFailed;
+        public event EventHandler<string> CreateTaskFailed;
+        public event EventHandler SelectedTaskChanged;
 
         void SelectTask(Guid id);
-        void ToggleTask(Guid id);
-        void AddTask(TaskModel model);
+        void ToggleTaskAsync(Guid id);
+        void AddTaskAsync(TaskVm model);
+        void AssignMember(TaskVm model);
     }
 }

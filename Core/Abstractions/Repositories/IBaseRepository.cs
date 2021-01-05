@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using ThreadingTasks = System.Threading.Tasks;
 
 namespace Core.Abstractions.Repositories
 {
@@ -16,20 +18,20 @@ namespace Core.Abstractions.Repositories
         /// <param name="id">The key to search for.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns><see cref="TEntity"/></returns>
-        Task<TEntity> ByIdAsync(TIdentifier id, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<TEntity> ByIdAsync(TIdentifier id, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Will return a single object, and throw ans exception if
         /// there is more than one record returned.
         /// </summary>
         /// <returns><see cref="TEntity"/></returns>
-        Task<TEntity> ToSingleAsync(CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<TEntity> ToSingleAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns a list of <see cref="TEntity"/> based on the current query.
         /// </summary>
         /// <returns><see cref="TEntity"/></returns>
-        Task<IEnumerable<TEntity>> ToListAsync(CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<IEnumerable<TEntity>> ToListAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Make the query Non Tracking
@@ -43,7 +45,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="record"></param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns><see cref="TEntity"/></returns>
-        Task<TEntity> CreateRecordAsync(TEntity record, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<TEntity> CreateRecordAsync(TEntity record, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Update the values for a record of type <see cref="TEntity"/>
@@ -51,7 +53,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="record">Object with updated values.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns>Number of records changed.</returns>
-        Task<int> UpdateRecordAsync(TEntity record, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<int> UpdateRecordAsync(TEntity record, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete record of type <see cref="TEntity"/>
@@ -59,7 +61,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="id">Id for record to delete.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns>Count of records to delete.</returns>
-        Task<int> DeleteRecordAsync(TIdentifier id, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<int> DeleteRecordAsync(TIdentifier id, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Patch a record in the database of type <see cref="TEntity"/>
@@ -68,7 +70,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="data">json data for patching</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns>Count of records patched</returns>
-        Task<int> PatchRecordAsync(TIdentifier id, string data, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<int> PatchRecordAsync(TIdentifier id, string data, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Bulk create records of type <see cref="TEntity"/>
@@ -76,7 +78,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="records">Records to Add</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns>Records added with IDs assigned</returns>
-        Task<IEnumerable<TEntity>> CreateBulkAsync(IEnumerable<TEntity> records, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<IEnumerable<TEntity>> CreateBulkAsync(IEnumerable<TEntity> records, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Bulk Delete records of type <see cref="TEntity"/>
@@ -84,7 +86,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="ids">IDs of records to delete.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns>Count of Deleted Records</returns>
-        Task<int> DeleteBulkAsync(IEnumerable<TIdentifier> ids, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<int> DeleteBulkAsync(IEnumerable<TIdentifier> ids, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Checks for the existence of a record based on it's ID.
@@ -92,7 +94,7 @@ namespace Core.Abstractions.Repositories
         /// <param name="id">ID for checking record</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
         /// <returns>true or false</returns>
-        Task<bool> ExistsAsync(TIdentifier id, CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<bool> ExistsAsync(TIdentifier id, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Used to reset the Query for QueryBuilder.
@@ -105,7 +107,14 @@ namespace Core.Abstractions.Repositories
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns><see cref="TEntity"/></returns>
-        Task<TEntity> SelectFirstOrDefaultAsync(CancellationToken cancellationToken = default);
+        ThreadingTasks.Task<TEntity> SelectFirstOrDefaultAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Used to include Foreign table data
+        /// </summary>
+        /// <param name="includes">Foreign Table</param>
+        /// <returns><see cref="TEntity"/></returns>
+        IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includes);
     }
 
 }

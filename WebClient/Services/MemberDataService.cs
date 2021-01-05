@@ -1,16 +1,15 @@
-﻿using Domain.Commands;
+﻿using Core.Extensions.ModelConversion;
+using Domain.Commands;
 using Domain.Queries;
+using Domain.ViewModel;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WebClient.Abstractions;
-using Microsoft.AspNetCore.Components;
-using Domain.ViewModel;
-using Core.Extensions.ModelConversion;
 
 namespace WebClient.Services
 {
@@ -98,7 +97,11 @@ namespace WebClient.Services
 
         public void SelectMember(Guid id)
         {
-            if (members.All(memberVm => memberVm.Id != id)) return;
+            if (id == Guid.Empty)
+            {
+                SelectNullMember();
+            }
+            else if (members.All(memberVm => memberVm.Id != id)) return;
             {
                 SelectedMember = members.SingleOrDefault(memberVm => memberVm.Id == id);
                 SelectedMemberChanged?.Invoke(this, null);

@@ -5,9 +5,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using ThreadingTasks = System.Threading.Tasks;
 
 namespace DataLayer
 {
@@ -31,19 +32,19 @@ namespace DataLayer
         }
 
 
-        public virtual async Task<TEntity> ByIdAsync(TIdentity id, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<TEntity> ByIdAsync(TIdentity id, CancellationToken cancellationToken = default)
         {
             var result = await Context.FindAsync<TEntity>(new object[] { id }, cancellationToken);
             if (result == null) throw new NotFoundException<TIdentity>(typeof(TEntity).Name, id);
             return result;
         }
 
-        public async Task<TEntity> ToSingleAsync(CancellationToken cancellationToken = default)
+        public async ThreadingTasks.Task<TEntity> ToSingleAsync(CancellationToken cancellationToken = default)
         {
             return await Query.SingleOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<TEntity>> ToListAsync(CancellationToken cancellationToken = default)
+        public async ThreadingTasks.Task<IEnumerable<TEntity>> ToListAsync(CancellationToken cancellationToken = default)
         {
             return await
                 Query.ToListAsync(cancellationToken);
@@ -55,7 +56,7 @@ namespace DataLayer
             return this as TRepository;
         }
 
-        public virtual async Task<TEntity> CreateRecordAsync(TEntity record, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<TEntity> CreateRecordAsync(TEntity record, CancellationToken cancellationToken = default)
         {
             var result = await Context.AddAsync(record, cancellationToken);
             await Context.SaveChangesAsync(cancellationToken);
@@ -63,14 +64,14 @@ namespace DataLayer
 
         }
 
-        public virtual async Task<int> UpdateRecordAsync(TEntity record, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<int> UpdateRecordAsync(TEntity record, CancellationToken cancellationToken = default)
         {
             var result = Context.Attach(record);
             result.State = EntityState.Modified;
             return await Context.SaveChangesAsync(cancellationToken);
         }
 
-        public virtual async Task<int> DeleteRecordAsync(TIdentity id, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<int> DeleteRecordAsync(TIdentity id, CancellationToken cancellationToken = default)
         {
             var item = await Context.FindAsync<TEntity>(id);
             if (item == null) throw new NotFoundException<TIdentity>(typeof(TEntity).Name, id);
@@ -78,7 +79,7 @@ namespace DataLayer
             return await Context.SaveChangesAsync(cancellationToken);
         }
 
-        public virtual async Task<int> PatchRecordAsync(TIdentity id, string data, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<int> PatchRecordAsync(TIdentity id, string data, CancellationToken cancellationToken = default)
         {
             var item = await Context.FindAsync<TEntity>(id);
             if (item == null) throw new NotFoundException<TIdentity>(typeof(TEntity).Name, id);
@@ -87,7 +88,7 @@ namespace DataLayer
             return await Context.SaveChangesAsync(cancellationToken);
         }
 
-        public virtual async Task<IEnumerable<TEntity>> CreateBulkAsync(IEnumerable<TEntity> records, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<IEnumerable<TEntity>> CreateBulkAsync(IEnumerable<TEntity> records, CancellationToken cancellationToken = default)
         {
             var bulkAsync = records.ToList();
             foreach (var record in bulkAsync)
@@ -99,7 +100,7 @@ namespace DataLayer
             return bulkAsync;
         }
 
-        public virtual async Task<int> DeleteBulkAsync(IEnumerable<TIdentity> ids, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<int> DeleteBulkAsync(IEnumerable<TIdentity> ids, CancellationToken cancellationToken = default)
         {
             foreach (var id in ids)
             {
@@ -111,7 +112,7 @@ namespace DataLayer
             return await Context.SaveChangesAsync(cancellationToken);
         }
 
-        public virtual async Task<bool> ExistsAsync(TIdentity id, CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<bool> ExistsAsync(TIdentity id, CancellationToken cancellationToken = default)
         {
             return (await Context.FindAsync<TEntity>(id)) != null;
         }
@@ -122,8 +123,13 @@ namespace DataLayer
             return this as TRepository;
         }
 
+        public IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includes)
+        {
+            var query = Context.Set<TEntity>().AsQueryable();
+            return includes.Aggregate(query, (q, w) => q.Include(w));
+        }
 
-        public virtual async Task<TEntity> SelectFirstOrDefaultAsync(CancellationToken cancellationToken = default)
+        public virtual async ThreadingTasks.Task<TEntity> SelectFirstOrDefaultAsync(CancellationToken cancellationToken = default)
         {
             return await Query.FirstOrDefaultAsync(cancellationToken);
         }
